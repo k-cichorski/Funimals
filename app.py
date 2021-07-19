@@ -1,7 +1,9 @@
+from requests.api import get
+from helperFunctions import handleIncorrectUrl
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from handlers.getAnimalFacts import getAnimalFacts
+from handlers.getAnimalFacts import getAnimalFacts, getResponseObject
 
 load_dotenv()
 
