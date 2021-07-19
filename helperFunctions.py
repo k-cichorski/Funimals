@@ -1,9 +1,8 @@
 import os
 from dotenv import load_dotenv
-import json
 
 load_dotenv()
-SERVER_PORT = os.environ.get('SERVER_PORT')
+BASE_URL = os.environ.get('BASE_URL')
 
 def handleAmount(amount):
   if type(amount) == int:
@@ -21,12 +20,8 @@ def handleAmount(amount):
     except ValueError:
       return False, handleIncorrectUrl()
 
-def handleIncorrectUrl(amount=None, errorMsg=None):
-  if amount is None:
-    amount = 5
-  if errorMsg is None:
-    link = f'http://localhost:{SERVER_PORT}/cat/{amount}'
-    errorMsg = f'Something\'s not right! Try {link} (only cats available right now!).'
+def handleIncorrectUrl(amount=None):
+  errorMsg = getIncorrectUrlMessage(amount)
   return getResponseObject(error=errorMsg, code=400)
 
 def getResponseObject(data=None, error=None, code=200):
@@ -34,3 +29,9 @@ def getResponseObject(data=None, error=None, code=200):
     'data': data,
     'error': error
   }, code)
+
+def getIncorrectUrlMessage(amount=None):
+  if amount == None:
+    amount = 5
+  link = f'{BASE_URL}/facts/?animal=cat&amount={amount}'
+  return f'Something\'s not right! Try {link} (only cats available right now!). Make a request to {BASE_URL} for more information.'
