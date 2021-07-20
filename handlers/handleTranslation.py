@@ -1,33 +1,15 @@
-import requests, os
-from helperFunctions import getResponseObject
-from handlers.handleErrors import handleRequestErrors
+from handlers.handleErrors import handleTranslationErrors, raiseGeneralError
+from google.cloud import translate_v2 as translate
 
-X_RAPIDAPI_KEY = os.environ.get('X_RAPIDAPI_KEY')
-
-def handleTranslation(facts, animal, translateTo):
-  data = {
-      'q': [animal, *facts],
-      'target': translateTo
-    }
-  headers = {
-    'content-type': 'application/x-www-form-urlencoded',
-    'accept-encoding': 'application/gzip',
-    'x-rapidapi-key': X_RAPIDAPI_KEY,
-    'x-rapidapi-host': 'google-translate1.p.rapidapi.com'
-  }
+def handleTextTranslation(text, translateTo):
+  translate_client = translate.Client()
   try:
-    response = requests.post('https://google-translate1.p.rapidapi.com/language/translate/v2', data=data, headers=headers)
+    translation = translate_client.translate(text, target_language=translateTo)
   except Exception as error:
-    return False, handleRequestErrors(error), None, None
-  
-  response = response.json()
-  responseData = response.get('data')
-  if responseData is None:
-    return False, getResponseObject(
-      error='Bad language shorthand. Make sure your shorthand is supported: https://cloud.google.com/translate/docs/languages',
-      code=400
-    ), None, None
-  translations = responseData.get('translations')
-  animal = translations[0].get('translatedText')
-  translatedFacts = [translation.get('translatedText') for translation in translations[1:]]
-  return True, None, translatedFacts, animal
+    raiseGeneralError(lambda: handleTranslationErrors(error))
+
+  if type(text) == list:
+    translatedText = [translation.get('translatedText') for translation in translation]
+  else:
+    translatedText = translation.get('translatedText')
+  return translatedText

@@ -2,7 +2,9 @@ import os
 from flask import Flask, request
 from flask_mail import Mail
 from dotenv import load_dotenv
+from werkzeug.exceptions import HTTPException
 from handlers.getAnimalFacts import getAnimalFacts
+from handlers.handleErrors import GeneralError, handleHttpErrors
 from helperFunctions import getResponseObject, handleIncorrectUrl
 
 load_dotenv()
@@ -14,6 +16,7 @@ app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS')
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
+app.config['JSON_AS_ASCII'] = False
 mail = Mail(app)
 
 SERVER_PORT = os.environ.get('SERVER_PORT')
@@ -24,18 +27,27 @@ DEBUG = os.environ.get('DEBUG')
 def route_index():
   return getResponseObject(f'''Try a request like this: {BASE_URL}/facts/?animal=cat&amount=5 (only cats available right now!).
   Additional options:
-  - Add an email argument to get up to 10 facts sent to you in a CSV file.
+  - Add a sendTo argument equal to a valid email address to get up to 10 facts sent to you in a CSV file.
   - Add a translateTo argument equal to a language shorthand to have your facts translated.''')
 
 @app.route('/facts/')
 def route_getAnimalFacts():
   animal = request.args.get('animal')
   amount = request.args.get('amount')
-  email = request.args.get('email')
+  sendTo = request.args.get('sendTo')
   translateTo = request.args.get('translateTo')
   if animal is not None and amount is not None:
-    return getAnimalFacts(animal, amount, email, translateTo, mail)
+    return getAnimalFacts(animal, amount, sendTo, translateTo, mail)
   return handleIncorrectUrl(amount)
+
+@app.errorhandler(HTTPException)
+def handler_httpError(error):
+  return handleHttpErrors(error)
+
+@app.errorhandler(GeneralError)
+def handler_generalError(error):
+  data, code = error.args
+  return data, code
 
 if __name__ == '__main__':
   app.run(port=SERVER_PORT, debug=DEBUG)

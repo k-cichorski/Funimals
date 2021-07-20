@@ -10,3 +10,18 @@ def handleRequestErrors(error):
     return getResponseObject(error='Connection timeout', code=504)
   else:
     return getResponseObject(error='An internal server error ocurred. Please contact server administrator.', code=500)
+
+def handleTranslationErrors(error):
+  error = vars(error)
+  print(error)
+  return getResponseObject(error=error['message'], code=error['_response'].status_code)
+
+def handleHttpErrors(error):
+  return getResponseObject(error=f'{error.name}: {error.description}', code=error.code)
+
+class GeneralError(Exception):
+  pass
+
+def raiseGeneralError(handler):
+  data, code = handler()
+  raise GeneralError(data, code)

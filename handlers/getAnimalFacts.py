@@ -1,16 +1,13 @@
-from handlers.handleErrors import handleRequestErrors
+from handlers.handleErrors import handleRequestErrors, raiseGeneralError
 import re, requests
-from requests.exceptions import HTTPError, ConnectionError, Timeout
 from helperFunctions import handleIncorrectUrl, handleAmount, getResponseObject
-from handlers.handleTranslation import handleTranslation
+from handlers.handleTranslation import handleTextTranslation
 from .handleCsvEmail import handleCsvEmail
 
-def getAnimalFacts(animal, amount, email, translateTo, mail):
-  (amountOk, amountOrResponse) = handleAmount(amount)
-  if not amountOk:
-    return amountOrResponse
+def getAnimalFacts(animal, amount, sendTo, translateTo, mail):
+  amount = handleAmount(amount)
   if animal.lower() != 'cat':
-    return handleIncorrectUrl(amount)
+    raiseGeneralError(lambda: handleIncorrectUrl(amount))
   
   params = {
     'animal_type': str(animal),
@@ -23,9 +20,9 @@ def getAnimalFacts(animal, amount, email, translateTo, mail):
   try:
     response = requests.get('https://cat-fact.herokuapp.com/facts/random', params=params, headers=headers)
   except Exception as error:
-    return handleRequestErrors(error)
-
-  if False or not response.ok: 
+    raiseGeneralError(lambda: handleRequestErrors(error))
+  
+  if not response.ok: 
     return response.text, response.status_code
   else:
     response = response.json()
@@ -37,28 +34,22 @@ def getAnimalFacts(animal, amount, email, translateTo, mail):
     else:
       animalFacts.append(response['text'])
 
+    originalAnimal = animal
+
     if translateTo is not None:
-      ok, translationError, animalFacts, animal = handleTranslation(animalFacts, animal, translateTo)
-      if not ok:
-        return translationError
-    
+      animal, *animalFacts = handleTextTranslation([animal, *animalFacts], translateTo)
+
     returnData = {
       'animal': animal,
       'facts': animalFacts,
-      'sentTo': None
+      'sendTo': sendTo,
+      'translateTo': translateTo
     }
 
-    if email is not None:
-      if re.match('[^@]+@[^@]+\.[^@]+$', email):
-        sent, error = handleCsvEmail(animalFacts, email, animal, mail)
-        if not sent:
-          return error
-        else:
-          returnData['sentTo'] = email
-          return getResponseObject(returnData)
-
+    if sendTo is not None:
+      if re.match('[^@]+@[^@]+\.[^@]+$', sendTo):
+        handleCsvEmail(animalFacts, sendTo, originalAnimal, mail, translateTo)
       else:
         return getResponseObject(error='Incorrect email format', code=400)
-      
 
     return getResponseObject(returnData)
