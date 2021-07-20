@@ -23,15 +23,18 @@ DEBUG = os.environ.get('DEBUG')
 @app.route('/')
 def route_index():
   return getResponseObject(f'''Try a request like this: {BASE_URL}/facts/?animal=cat&amount=5 (only cats available right now!).
-  Add an email argument to get up to 10 facts sent to you in a CSV file.''')
+  Additional options:
+  - Add an email argument to get up to 10 facts sent to you in a CSV file.
+  - Add a translateTo argument equal to a language shorthand to have your facts translated.''')
 
 @app.route('/facts/')
 def route_getAnimalFacts():
   animal = request.args.get('animal')
   amount = request.args.get('amount')
   email = request.args.get('email')
+  translateTo = request.args.get('translateTo')
   if animal is not None and amount is not None:
-    return getAnimalFacts(animal, amount, email, mail)
+    return getAnimalFacts(animal, amount, email, translateTo, mail)
   return handleIncorrectUrl(amount)
 
 if __name__ == '__main__':

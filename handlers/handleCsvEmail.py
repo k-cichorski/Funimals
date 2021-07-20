@@ -1,11 +1,8 @@
 import pandas as pd
 import os
-from dotenv import load_dotenv
 from flask_mail import Message
 from smtplib import SMTPException
 from helperFunctions import getResponseObject
-
-load_dotenv()
 
 API_EMAIL = os.environ.get('API_EMAIL')
 API_EMAIL_PASSWORD = os.environ.get('API_EMAIL_PASSWORD')

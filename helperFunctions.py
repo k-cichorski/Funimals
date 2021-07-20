@@ -1,7 +1,5 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 BASE_URL = os.environ.get('BASE_URL')
 
 def handleAmount(amount):
@@ -21,7 +19,10 @@ def handleAmount(amount):
       return False, handleIncorrectUrl()
 
 def handleIncorrectUrl(amount=None):
-  errorMsg = getIncorrectUrlMessage(amount)
+  if amount == None:
+    amount = 5
+  link = f'{BASE_URL}/facts/?animal=cat&amount={amount}'
+  errorMsg = f'Something\'s not right! Try {link} (only cats available right now!). Make a request to {BASE_URL} for more information.'
   return getResponseObject(error=errorMsg, code=400)
 
 def getResponseObject(data=None, error=None, code=200):
@@ -29,9 +30,3 @@ def getResponseObject(data=None, error=None, code=200):
     'data': data,
     'error': error
   }, code)
-
-def getIncorrectUrlMessage(amount=None):
-  if amount == None:
-    amount = 5
-  link = f'{BASE_URL}/facts/?animal=cat&amount={amount}'
-  return f'Something\'s not right! Try {link} (only cats available right now!). Make a request to {BASE_URL} for more information.'

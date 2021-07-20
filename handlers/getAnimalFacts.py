@@ -1,9 +1,11 @@
+from handlers.handleErrors import handleRequestErrors
 import re, requests
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from helperFunctions import handleIncorrectUrl, handleAmount, getResponseObject
+from handlers.handleTranslation import handleTranslation
 from .handleCsvEmail import handleCsvEmail
 
-def getAnimalFacts(animal, amount, email, mail):
+def getAnimalFacts(animal, amount, email, translateTo, mail):
   (amountOk, amountOrResponse) = handleAmount(amount)
   if not amountOk:
     return amountOrResponse
@@ -20,15 +22,8 @@ def getAnimalFacts(animal, amount, email, mail):
 
   try:
     response = requests.get('https://cat-fact.herokuapp.com/facts/random', params=params, headers=headers)
-  except HTTPError as http_err:
-    _, error = vars(http_err).values()
-    return getResponseObject(error=error, code=http_err.response.status_code)
-  except ConnectionError:
-    return getResponseObject(error='Connection error', code=502)
-  except Timeout:
-    return getResponseObject(error='Connection timeout', code=504)
-  except Exception:
-    return getResponseObject(error='An internal server error ocurred. Please contact server administrator.', code=500)
+  except Exception as error:
+    return handleRequestErrors(error)
 
   if False or not response.ok: 
     return response.text, response.status_code
@@ -41,6 +36,11 @@ def getAnimalFacts(animal, amount, email, mail):
         animalFacts.append(factDict['text'])
     else:
       animalFacts.append(response['text'])
+
+    if translateTo is not None:
+      ok, translationError, animalFacts, animal = handleTranslation(animalFacts, animal, translateTo)
+      if not ok:
+        return translationError
     
     returnData = {
       'animal': animal,
