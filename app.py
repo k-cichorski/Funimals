@@ -30,7 +30,7 @@ def route_index():
 Additional options:
 - Add a sendTo argument equal to a valid email address to get up to 10 facts sent to you in a CSV file.
 - Add a translateTo argument equal to a language shorthand to have your facts translated.
-- If you get a 503 response, try adding useAltFactSrc=true to request params (animal argument not required then, serving only cats). Add maxLength argument to limit fact char length.''')
+- You can add useAltFactSrc=true to request params (serving only cat facts) to use alternate fact source. Add maxLength argument to limit fact char length.''')
 
 @app.route('/facts')
 def route_getAnimalFacts():
