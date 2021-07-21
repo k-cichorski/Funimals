@@ -13,7 +13,7 @@ Go to project directory and create a virtual environment:
 cd Funimals
 python -m venv venv
 ```
-then activate it:
+then activate it: \
 ****Unix/macOS****
 ```bash
 source venv/bin/activate
@@ -33,7 +33,7 @@ GOOGLE_APPLICATION_CREDENTIALS=String
 ```
 This variable should be a path to Google API's ****authorization_key.json**** (required only for translations).
 ## Usage
-Go to project directory, activate the virtual environment and start the app:
+Go to project directory, activate the virtual environment and start the app: \
 ****Unix/macOS****
 ```bash
 source venv/bin/activate
@@ -50,18 +50,17 @@ call launch.bat
 ```
 and make a GET request to the ****link**** printed to the console (e.g ****http://localhost:5000/****). You might have to scroll up a little bit :)
 ## Request Arguments
-```code
-amount: (required) specifies how many facts will be returned. Has to be in range of 1-500 (1000 if useAltFactSrc is True).
-```
-```code
-animal: specifies which animal the facts will be about. Currently, the only acceptable value is 'cat'. Defaults to 'cat'.
-```
-```code
-sendTo: specifies an email address to which first 10 facts will be sent as a CSV file.
-```
-```code
-translateTo: specifies a language which the facts will be translated to. Has to be an ISO-639-1 Code, e.g. 'es'.
-```
-```code
-useAltFactSrc: if True, an alternate fact source will be used. If False and main fact source fails to respond, a redirect will be called with this argument set to True.
-```
+****amount**** (****required****)
+specifies how many facts will be returned. Has to be in range of 1-500 (1000 if ****useAltFactSrc**** is ****True****).
+
+****animal****
+specifies which animal the facts will be about. Currently, the only acceptable value is 'cat'. Defaults to 'cat'.
+
+****sendTo****
+specifies an email address to which first 10 facts will be sent as a CSV file.
+
+****translateTo****
+specifies a language which the facts will be translated to. Has to be an ISO-639-1 Code, e.g. 'es'.
+
+****useAltFactSrc****
+if ****True****, an alternate fact source will be used. If ****False**** and main fact source fails to respond, a redirect will be called with this argument set to ****True****.
