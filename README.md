@@ -50,17 +50,17 @@ call launch.bat
 ```
 and make a GET request to the ****link**** printed to the console (e.g ****http://localhost:5000/****). You might have to scroll up a little bit :)
 ## Request Arguments
-****amount**** (****required****)
+****amount**** (****required****) \
 specifies how many facts will be returned. Has to be in range of 1-500 (1000 if ****useAltFactSrc**** is ****True****).
 
-****animal****
+****animal**** \
 specifies which animal the facts will be about. Currently, the only acceptable value is 'cat'. Defaults to 'cat'.
 
-****sendTo****
+****sendTo**** \
 specifies an email address to which first 10 facts will be sent as a CSV file.
 
-****translateTo****
+****translateTo**** \
 specifies a language which the facts will be translated to. Has to be an ISO-639-1 Code, e.g. 'es'.
 
-****useAltFactSrc****
+****useAltFactSrc**** \
 if ****True****, an alternate fact source will be used. If ****False**** and main fact source fails to respond, a redirect will be called with this argument set to ****True****.
