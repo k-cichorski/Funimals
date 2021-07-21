@@ -42,7 +42,7 @@ def handleCsvEmail(facts, sendTo, animal, translateTo):
     mail.send(emailMessage)
   except SMTPException as smtp_exception:
     code, error = vars(smtp_exception).values()
-    raiseGeneralError(lambda: getResponseObject(error=error.decode(), code=code))
+    raiseGeneralError(lambda: getResponseObject(errors=error.decode(), code=code))
   
   finally:
     os.remove(csvFilePath)

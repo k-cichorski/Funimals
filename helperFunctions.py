@@ -3,11 +3,11 @@ import handlers.handleErrors as handleErrors
 
 BASE_URL = os.environ.get('BASE_URL')
 
-def verifyAmount(amount):
+def verifyAmount(amount, maxAmount):
   try:
     amount = int(amount)
-    if amount > 500:
-      error = '500 facts is maximum!'
+    if amount > maxAmount:
+      error = f'{maxAmount} facts is maximum!'
     elif amount ==  0:
       error = '1 fact is minimum!'
     else:
@@ -16,7 +16,7 @@ def verifyAmount(amount):
   except ValueError:
     return 'Make sure the amount argument is an integer!'
 
-def verifyArguments(animal, amount, sendTo):
+def verifyArguments(animal, amount, sendTo, useAltFactSrc):
   errors = []
   if animal is not None:
     if animal.lower() != 'cat':
@@ -24,12 +24,16 @@ def verifyArguments(animal, amount, sendTo):
   else:
     errors.append('Argument \'animal\' is required (only cat facts available right now)!')
 
+  if useAltFactSrc:
+    maxAmount = 1000
+  else:
+    maxAmount = 500
   if amount is not None:
-    amountErrors = verifyAmount(amount)
+    amountErrors = verifyAmount(amount, maxAmount)
     if amountErrors is not None:
       errors.append(amountErrors)
   else:
-    errors.append('Argument \'amount\' is required (1-500)!')
+    errors.append(f'Argument \'amount\' is required (1-{maxAmount})!')
 
   if sendTo is not None:
     if not re.match('[^@]+@[^@]+\.[^@]+$', sendTo):

@@ -3,31 +3,53 @@ from .handleErrors import handleRequestErrors, raiseGeneralError
 from helperFunctions import getResponseObject
 from .handleTranslation import handleTextTranslation
 from .handleCsvEmail import handleCsvEmail
+from flask import redirect, url_for, request
 
-def getAnimalFacts(animal, amount, sendTo, translateTo):
-  params = {
-    'animal_type': str(animal),
-    'amount': str(amount)
-  }
+def getAnimalFacts(animal, amount, sendTo, translateTo, useAltFactSrc, maxLength):
+  if useAltFactSrc:
+    factsApi = 'https://catfact.ninja/facts'
+    factKey = 'fact'
+    params = {
+      'limit': str(amount),
+      'max_length': str(maxLength)
+    }
+  else:
+    factsApi = 'https://cat-fact.herokuapp.com/facts/random' 
+    factKey = 'text'
+    params = {
+      'animal_type': str(animal),
+      'amount': str(amount)
+    }
   headers = {
     'Accept': 'application/json'
   }
   try:
-    response = requests.get('https://cat-fact.herokuapp.com/facts/random', params=params, headers=headers)
+    response = requests.get(factsApi, params=params, headers=headers)
   except Exception as error:
     raiseGeneralError(lambda: handleRequestErrors(error))
   
   if not response.ok:
-    return response.text, response.status_code
+    if useAltFactSrc:
+      return response.reason, response.status_code
+    else:
+      newArgs = {
+        **request.args,
+        'useAltFactSrc': True
+      }
+      return redirect(url_for('.route_getAnimalFacts', **newArgs))
+      # return response.text, response.status_code
   else:
     response = response.json()
+
+    if useAltFactSrc:
+      response = response['data']
 
     animalFacts = []
     if type(response) == list:
       for factDict in response:
-        animalFacts.append(factDict['text'])
+        animalFacts.append(factDict[factKey])
     else:
-      animalFacts.append(response['text'])
+      animalFacts.append(response[factKey])
 
     originalAnimal = animal
 

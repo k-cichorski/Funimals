@@ -17,6 +17,7 @@ app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 app.config['JSON_AS_ASCII'] = False
+app.url_map.strict_slashes = False
 mail.init_app(app)
 
 SERVER_PORT = os.environ.get('SERVER_PORT')
@@ -25,19 +26,24 @@ DEBUG = os.environ.get('DEBUG')
 
 @app.route('/')
 def route_index():
-  return getResponseObject(f'''Try a request like this: {BASE_URL}/facts/?animal=cat&amount=5 (only cat facts available right now!).
-  Additional options:
-  - Add a sendTo argument equal to a valid email address to get up to 10 facts sent to you in a CSV file.
-  - Add a translateTo argument equal to a language shorthand to have your facts translated.''')
+  return getResponseObject(f'''Try a request like this: {BASE_URL}/facts?animal=cat&amount=5 (only cat facts available right now!).
+Additional options:
+- Add a sendTo argument equal to a valid email address to get up to 10 facts sent to you in a CSV file.
+- Add a translateTo argument equal to a language shorthand to have your facts translated.
+- If you get a 503 response, try adding useAltFactSrc=true to request params (animal argument not required then, serving only cats). Add maxLength argument to limit fact char length.''')
 
-@app.route('/facts/')
+@app.route('/facts')
 def route_getAnimalFacts():
-  animal = request.args.get('animal')
+  useAltFactSrc = request.args.get('useAltFactSrc')
+  animal = request.args.get('animal', 'cat')
+  if useAltFactSrc is not None:
+    useAltFactSrc = useAltFactSrc.lower() == 'true'
   amount = request.args.get('amount')
   sendTo = request.args.get('sendTo')
-  verifyArguments(animal, amount, sendTo)
+  verifyArguments(animal, amount, sendTo, useAltFactSrc)
   translateTo = request.args.get('translateTo')
-  return getAnimalFacts(animal, amount, sendTo, translateTo)
+  maxLength = request.args.get('maxLength')
+  return getAnimalFacts(animal, amount, sendTo, translateTo, useAltFactSrc, maxLength)
 
 @app.errorhandler(HTTPException)
 def handler_httpError(error):

@@ -3,21 +3,21 @@ from helperFunctions import getResponseObject
 def handleRequestErrors(error):
   if type(error).__name__ == 'HTTPError':
     _, error = vars(error).values()
-    return getResponseObject(error=error, code=error.response.status_code)
+    return getResponseObject(errors=error, code=error.response.status_code)
   elif type(error).__name__ == 'ConnectionError':
-    return getResponseObject(error='Connection error', code=502)
+    return getResponseObject(errors='Connection error', code=502)
   elif type(error).__name__ == 'Timeout':
-    return getResponseObject(error='Connection timeout', code=504)
+    return getResponseObject(errors='Connection timeout', code=504)
   else:
-    return getResponseObject(error='An internal server error ocurred. Please contact server administrator.', code=500)
+    return getResponseObject(errors='An internal server error ocurred. Please contact server administrator.', code=500)
 
 def handleTranslationErrors(error):
   error = vars(error)
   print(error)
-  return getResponseObject(error=error['message'], code=error['_response'].status_code)
+  return getResponseObject(errors=error['message'], code=error['_response'].status_code)
 
 def handleHttpErrors(error):
-  return getResponseObject(error=f'{error.name}: {error.description}', code=error.code)
+  return getResponseObject(errors=f'{error.name}: {error.description}', code=error.code)
 
 class GeneralError(Exception):
   pass
