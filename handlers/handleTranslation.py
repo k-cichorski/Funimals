@@ -1,4 +1,4 @@
-from handlers.handleErrors import handleTranslationErrors, raiseGeneralError
+from .handleErrors import handleTranslationErrors, raiseGeneralError
 from google.cloud import translate_v2 as translate
 
 def handleTextTranslation(text, translateTo):

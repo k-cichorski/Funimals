@@ -1,18 +1,19 @@
-from handlers.handleErrors import raiseGeneralError
+import os
 import pandas as pd
 import numpy as np
-import os
+from .handleErrors import raiseGeneralError
 from flask_mail import Message
 from smtplib import SMTPException
 from helperFunctions import getResponseObject
 from .handleTranslation import handleTextTranslation
+from extensions import mail
 
 API_EMAIL = os.environ.get('API_EMAIL')
 API_EMAIL_PASSWORD = os.environ.get('API_EMAIL_PASSWORD')
 SMTP_HOST = os.environ.get('SMTP_HOST')
 SMTP_PORT = os.environ.get('SMTP_PORT')
 
-def handleCsvEmail(facts, sendTo, animal, mail, translateTo):
+def handleCsvEmail(facts, sendTo, animal, translateTo):
   csvFilePath = './temp/facts.csv'
   animalFactsHeader = f'{animal.capitalize()} Facts'
   emailSubject = f'Here are Your {animalFactsHeader}!'

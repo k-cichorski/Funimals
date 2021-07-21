@@ -1,14 +1,10 @@
-from handlers.handleErrors import handleRequestErrors, raiseGeneralError
-import re, requests
-from helperFunctions import handleIncorrectUrl, handleAmount, getResponseObject
-from handlers.handleTranslation import handleTextTranslation
+import requests
+from .handleErrors import handleRequestErrors, raiseGeneralError
+from helperFunctions import getResponseObject
+from .handleTranslation import handleTextTranslation
 from .handleCsvEmail import handleCsvEmail
 
-def getAnimalFacts(animal, amount, sendTo, translateTo, mail):
-  amount = handleAmount(amount)
-  if animal.lower() != 'cat':
-    raiseGeneralError(lambda: handleIncorrectUrl(amount))
-  
+def getAnimalFacts(animal, amount, sendTo, translateTo):
   params = {
     'animal_type': str(animal),
     'amount': str(amount)
@@ -16,13 +12,12 @@ def getAnimalFacts(animal, amount, sendTo, translateTo, mail):
   headers = {
     'Accept': 'application/json'
   }
-
   try:
     response = requests.get('https://cat-fact.herokuapp.com/facts/random', params=params, headers=headers)
   except Exception as error:
     raiseGeneralError(lambda: handleRequestErrors(error))
   
-  if not response.ok: 
+  if not response.ok:
     return response.text, response.status_code
   else:
     response = response.json()
@@ -47,9 +42,6 @@ def getAnimalFacts(animal, amount, sendTo, translateTo, mail):
     }
 
     if sendTo is not None:
-      if re.match('[^@]+@[^@]+\.[^@]+$', sendTo):
-        handleCsvEmail(animalFacts, sendTo, originalAnimal, mail, translateTo)
-      else:
-        return getResponseObject(error='Incorrect email format', code=400)
+      handleCsvEmail(animalFacts, sendTo, originalAnimal, translateTo)
 
     return getResponseObject(returnData)
