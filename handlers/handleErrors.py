@@ -13,7 +13,6 @@ def handleRequestErrors(error):
 
 def handleTranslationErrors(error):
   error = vars(error)
-  print(error)
   return getResponseObject(errors=error['message'], code=error['_response'].status_code)
 
 def handleHttpErrors(error):
