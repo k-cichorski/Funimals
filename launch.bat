@@ -1,1 +1,1 @@
-PowerShell.exe -noexit "& .\venv\Scripts\python.exe app.py"
+cmd /k venv\Scripts\python.exe app.py
