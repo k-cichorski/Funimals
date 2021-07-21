@@ -6,10 +6,8 @@ BASE_URL = os.environ.get('BASE_URL')
 def verifyAmount(amount, maxAmount):
   try:
     amount = int(amount)
-    if amount > maxAmount:
-      error = f'{maxAmount} facts is maximum!'
-    elif amount ==  0:
-      error = '1 fact is minimum!'
+    if amount > maxAmount or amount == 0:
+      error = f'Argument \'amount\' should be in range of 1-{maxAmount}!'
     else:
       error = None
     return error
