@@ -1,10 +1,13 @@
-from .handleErrors import handleTranslationErrors, raiseGeneralError
+from .handleErrors import handleRequestErrors, handleTranslationErrors, raiseGeneralError
 from google.cloud import translate_v2 as translate
+from google.auth.exceptions import GoogleAuthError
 
 def handleTextTranslation(text, translateTo):
-  translate_client = translate.Client()
   try:
+    translate_client = translate.Client()
     translation = translate_client.translate(text, target_language=translateTo)
+  except GoogleAuthError as google_error:
+    raiseGeneralError(lambda: handleRequestErrors(google_error))
   except Exception as error:
     raiseGeneralError(lambda: handleTranslationErrors(error))
 

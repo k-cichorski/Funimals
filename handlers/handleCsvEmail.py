@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
-from .handleErrors import raiseGeneralError
+from .handleErrors import handleRequestErrors, raiseGeneralError
 from flask_mail import Message
 from smtplib import SMTPException
 from helperFunctions import getResponseObject
@@ -41,6 +41,9 @@ def handleCsvEmail(facts, sendTo, animal, translateTo):
   try:
     mail.send(emailMessage)
   except SMTPException as smtp_exception:
+    exceptionVars = vars(smtp_exception)
+    if not bool(exceptionVars):
+      raiseGeneralError(lambda: handleRequestErrors(error=smtp_exception))
     code, error = vars(smtp_exception).values()
     raiseGeneralError(lambda: getResponseObject(errors=error.decode(), code=code))
   

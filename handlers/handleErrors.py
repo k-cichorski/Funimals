@@ -8,6 +8,8 @@ def handleRequestErrors(error):
     return getResponseObject(errors='Connection error', code=502)
   elif type(error).__name__ == 'Timeout':
     return getResponseObject(errors='Connection timeout', code=504)
+  elif type(error).__name__ == 'ConnectionRefusedError':
+    return getResponseObject(errors='Connection refused', code=401)
   else:
     return getResponseObject(errors='An internal server error ocurred. Please contact server administrator.', code=500)
 
